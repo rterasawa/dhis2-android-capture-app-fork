@@ -1,4 +1,6 @@
-package org.dhis2.usescases.videoGuide.video
+@file:OptIn(androidx.media3.common.util.UnstableApi::class)
+
+package org.dhis2.usescases.videoGuide.player
 
 import android.content.Context
 import androidx.media3.common.MediaItem

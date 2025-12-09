@@ -1,16 +1,22 @@
 @file:OptIn(androidx.media3.common.util.UnstableApi::class)
 
-package org.dhis2.usescases.videoGuide.video
+package org.dhis2.usescases.videoGuide.download
 
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.media3.database.StandaloneDatabaseProvider
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.offline.DownloadManager
 import androidx.media3.exoplayer.offline.DownloadService
+import androidx.media3.common.util.Util
 import org.dhis2.R
+import java.util.concurrent.Executors
 
 /**
  * ExoPlayerのDownloadServiceを継承したフォアグラウンドサービス
@@ -20,14 +26,16 @@ class VideoDownloadService : DownloadService(
     FOREGROUND_NOTIFICATION_ID,
     DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,
     DOWNLOAD_NOTIFICATION_CHANNEL_ID,
-    R.string.download_notification_channel_name,
-    0
+    R.string.download_notification_channel_name, // チャンネル名のリソースID
+    R.string.download_notification_channel_description // チャンネル説明のリソースID
+    // foregroundServiceTypeはAndroidManifest.xmlで設定済み（mediaPlayback）
 ) {
     companion object {
         private const val FOREGROUND_NOTIFICATION_ID = 1
         private const val DOWNLOAD_NOTIFICATION_CHANNEL_ID = "video_download_channel"
         private const val DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL = 1000L
 
+        @Volatile
         private var downloadManagerInstance: DownloadManager? = null
 
         /**
@@ -39,9 +47,42 @@ class VideoDownloadService : DownloadService(
         }
     }
 
+    override fun onCreate() {
+        // super.onCreate()を呼ぶ前に通知チャンネルを手動で作成
+        // これにより、Media3の自動作成を回避し、リソースが正しく解決される
+        createNotificationChannel()
+        
+        // 親クラスの初期化処理を実行
+        super.onCreate()
+    }
+
     override fun getDownloadManager(): DownloadManager {
-        return downloadManagerInstance
-            ?: throw IllegalStateException("DownloadManager is not initialized. Call VideoDownloadService.setDownloadManager() first.")
+        // 既に設定されている場合はそれを使用
+        downloadManagerInstance?.let { return it }
+        
+        // 設定されていない場合は遅延初期化
+        synchronized(VideoDownloadService::class.java) {
+            downloadManagerInstance?.let { return it }
+            
+            val context = applicationContext
+            val databaseProvider = StandaloneDatabaseProvider(context)
+            val cache = VideoCacheManager.getOrCreateSimpleCache(context)
+            val dataSourceFactory: HttpDataSource.Factory =
+                DefaultHttpDataSource.Factory()
+                    .setUserAgent(Util.getUserAgent(context, "DHIS2-Android-Capture"))
+                    .setAllowCrossProtocolRedirects(true)
+
+            val downloadManager = DownloadManager(
+                context,
+                databaseProvider,
+                cache,
+                dataSourceFactory,
+                Executors.newSingleThreadExecutor()
+            )
+            
+            downloadManagerInstance = downloadManager
+            return downloadManager
+        }
     }
 
     override fun getForegroundNotification(

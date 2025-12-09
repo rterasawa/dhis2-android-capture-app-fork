@@ -1,9 +1,8 @@
 @file:OptIn(androidx.media3.common.util.UnstableApi::class)
 
-package org.dhis2.usescases.videoGuide.video
+package org.dhis2.usescases.videoGuide.player
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -22,6 +21,10 @@ import org.dhis2.usescases.videoGuide.data.datasource.VideoRemoteDataSource
 import org.dhis2.usescases.videoGuide.data.local.DownloadedVideoDao
 import org.dhis2.usescases.videoGuide.data.local.VideoDatabase
 import org.dhis2.usescases.videoGuide.data.mapper.VideoMapper
+import org.dhis2.usescases.videoGuide.download.DownloadTracker
+import org.dhis2.usescases.videoGuide.download.VideoCacheManager
+import org.dhis2.usescases.videoGuide.download.VideoDownloadManager
+import org.dhis2.usescases.videoGuide.download.VideoDownloadService
 import androidx.room.Room
 import androidx.media3.datasource.cache.SimpleCache
 import retrofit2.Retrofit
@@ -149,7 +152,7 @@ class VideoPlayerModule(
         )
 
         // VideoDownloadServiceにDownloadManagerを設定（既に設定済みの可能性があるが、念のため）
-        org.dhis2.usescases.videoGuide.video.VideoDownloadService.setDownloadManager(downloadManager)
+        VideoDownloadService.setDownloadManager(downloadManager)
 
         return downloadManager
     }
@@ -179,14 +182,6 @@ class VideoPlayerModule(
         downloadManager: VideoDownloadManager,
     ): VideoPlayerViewModelFactory {
         return VideoPlayerViewModelFactory(repository, downloadManager, activity)
-    }
-
-    @Provides
-    @PerActivity
-    fun provideViewModel(
-        factory: VideoPlayerViewModelFactory,
-    ): VideoPlayerViewModel {
-        return ViewModelProvider(viewModelStoreOwner, factory)[VideoPlayerViewModel::class.java]
     }
 }
 

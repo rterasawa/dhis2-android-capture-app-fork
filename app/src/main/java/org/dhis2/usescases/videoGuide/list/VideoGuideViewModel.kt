@@ -1,4 +1,4 @@
-package org.dhis2.usescases.videoGuide
+package org.dhis2.usescases.videoGuide.list
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -6,13 +6,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
 import kotlinx.coroutines.launch
+import org.dhis2.usescases.videoGuide.VideoGuideRepository
 import org.dhis2.usescases.videoGuide.domain.model.VideoItem
-import org.dhis2.usescases.videoGuide.video.VideoDownloadManager
+import org.dhis2.usescases.videoGuide.download.VideoDownloadManager
 import androidx.media3.exoplayer.offline.Download
 import timber.log.Timber
 import java.io.File
 
+@UnstableApi
 class VideoGuideViewModel(
     private val repository: VideoGuideRepository,
     private val downloadManager: VideoDownloadManager,
@@ -115,6 +118,30 @@ class VideoGuideViewModel(
                 // エラーハンドリング
             }
         }
+    }
+
+    /**
+     * 動画がダウンロード済みかチェック
+     */
+    fun isVideoDownloaded(videoId: String): Boolean {
+        // 同期的にチェックするため、LiveDataの値から直接取得
+        // 注意: このメソッドは同期的なチェックのみで、非同期のDB確認は行わない
+        // UIで使用する場合は、downloadStatesと組み合わせて使用することを推奨
+        return downloadStates.value?.get(videoId)?.state == Download.STATE_COMPLETED
+    }
+
+    /**
+     * 特定の動画のダウンロード状態を取得
+     */
+    fun getDownloadStateForVideo(videoId: String): Download? {
+        return downloadStates.value?.get(videoId)
+    }
+
+    /**
+     * 特定の動画のダウンロード進捗を取得
+     */
+    fun getDownloadProgressForVideo(videoId: String): Int {
+        return downloadProgress.value?.get(videoId) ?: 0
     }
 }
 

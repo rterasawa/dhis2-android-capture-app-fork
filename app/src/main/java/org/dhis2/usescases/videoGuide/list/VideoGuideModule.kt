@@ -1,6 +1,6 @@
 @file:OptIn(androidx.media3.common.util.UnstableApi::class)
 
-package org.dhis2.usescases.videoGuide
+package org.dhis2.usescases.videoGuide.list
 
 import android.content.Context
 import androidx.room.Room
@@ -11,6 +11,7 @@ import dagger.Provides
 import okhttp3.OkHttpClient
 import org.dhis2.BuildConfig
 import org.dhis2.commons.di.dagger.PerFragment
+import org.dhis2.usescases.videoGuide.VideoGuideRepository
 import org.dhis2.usescases.videoGuide.data.api.VideoApiService
 import org.dhis2.usescases.videoGuide.data.datasource.DummyVideoDataSource
 import org.dhis2.usescases.videoGuide.data.datasource.DrupalVideoApiDataSource
@@ -20,8 +21,10 @@ import org.dhis2.usescases.videoGuide.data.datasource.VideoRemoteDataSource
 import org.dhis2.usescases.videoGuide.data.local.DownloadedVideoDao
 import org.dhis2.usescases.videoGuide.data.local.VideoDatabase
 import org.dhis2.usescases.videoGuide.data.mapper.VideoMapper
-import org.dhis2.usescases.videoGuide.video.DownloadTracker
-import org.dhis2.usescases.videoGuide.video.VideoDownloadManager
+import org.dhis2.usescases.videoGuide.download.DownloadTracker
+import org.dhis2.usescases.videoGuide.download.VideoCacheManager
+import org.dhis2.usescases.videoGuide.download.VideoDownloadManager
+import org.dhis2.usescases.videoGuide.download.VideoDownloadService
 import androidx.media3.datasource.cache.SimpleCache
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -124,7 +127,7 @@ class VideoGuideModule {
     @Provides
     @PerFragment
     fun provideSimpleCache(context: Context): SimpleCache {
-        return org.dhis2.usescases.videoGuide.video.VideoCacheManager.getOrCreateSimpleCache(context)
+        return VideoCacheManager.getOrCreateSimpleCache(context)
     }
 
     @Provides
@@ -148,7 +151,7 @@ class VideoGuideModule {
         )
 
         // VideoDownloadServiceにDownloadManagerを設定
-        org.dhis2.usescases.videoGuide.video.VideoDownloadService.setDownloadManager(downloadManager)
+        VideoDownloadService.setDownloadManager(downloadManager)
 
         return downloadManager
     }

@@ -1,4 +1,4 @@
-package org.dhis2.usescases.videoGuide.video
+package org.dhis2.usescases.videoGuide.player
 
 import dagger.Subcomponent
 import org.dhis2.commons.di.dagger.PerActivity

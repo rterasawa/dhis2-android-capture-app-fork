@@ -1,4 +1,4 @@
-package org.dhis2.usescases.videoGuide.video
+package org.dhis2.usescases.videoGuide.player
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.dhis2.usescases.videoGuide.VideoGuideRepository
 import org.dhis2.usescases.videoGuide.domain.model.VideoItem
+import org.dhis2.usescases.videoGuide.download.VideoDownloadManager
 import androidx.media3.exoplayer.offline.Download
 import timber.log.Timber
 import java.io.File
@@ -112,15 +113,39 @@ class VideoPlayerViewModel(
     }
 
     /**
+     * Roomデータベースでダウンロード済みかどうかを確認
+     */
+    suspend fun isVideoDownloaded(): Boolean {
+        return _videoItem.value?.let { video ->
+            repository.isVideoDownloaded(video.id)
+        } ?: false
+    }
+
+    /**
      * ダウンロード状態を確認
+     * Roomデータベースも確認して、ダウンロード済みかどうかを判定
      */
     fun checkDownloadState() {
         _videoItem.value?.let { video ->
-            val state = downloadManager.getDownloadState(video.id)
-            _downloadState.postValue(state)
-            if (state != null) {
-                val progress = downloadManager.getDownloadProgress(video.id)
-                _downloadProgress.postValue(progress)
+            viewModelScope.launch {
+                // Roomでダウンロード済みかどうかを確認
+                val isDownloadedInRoom = repository.isVideoDownloaded(video.id)
+                
+                if (isDownloadedInRoom) {
+                    // Roomに記録あり = ダウンロード完了として扱う
+                    // ExoPlayerの状態は進捗表示用に取得
+                    val state = downloadManager.getDownloadState(video.id)
+                    _downloadState.postValue(state)
+                } else {
+                    // Roomに記録なし = ExoPlayerの状態を確認
+                    val state = downloadManager.getDownloadState(video.id)
+                    _downloadState.postValue(state)
+                }
+                
+                _downloadState.value?.let {
+                    val progress = downloadManager.getDownloadProgress(video.id)
+                    _downloadProgress.postValue(progress)
+                }
             }
         }
     }
