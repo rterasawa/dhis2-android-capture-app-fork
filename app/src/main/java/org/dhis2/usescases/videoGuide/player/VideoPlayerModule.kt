@@ -171,8 +171,9 @@ class VideoPlayerModule(
     @PerActivity
     fun provideExoPlayerManager(
         cache: SimpleCache,
+        downloadManager: androidx.media3.exoplayer.offline.DownloadManager,
     ): ExoPlayerManager {
-        return ExoPlayerManager(activity, cache)
+        return ExoPlayerManager(activity, cache, downloadManager)
     }
 
     @Provides

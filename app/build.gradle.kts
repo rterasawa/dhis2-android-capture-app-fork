@@ -150,7 +150,7 @@ android {
             buildConfigField("String", "GIT_SHA", "\"" + getCommitHash() + "\"")
             // エミュレーター用: ddevのポートマッピングに合わせる
             // 注意: ポート番号はddev再起動時に変わる可能性があるため、変更時は ddev describe で確認してください
-            buildConfigField("String", "DRUPAL_BASE_URL", "\"http://10.0.2.2:32768/\"")
+            buildConfigField("String", "DRUPAL_BASE_URL", "\"http://10.0.2.2:32772/\"")
         }
         getByName("release") {
             isMinifyEnabled = false

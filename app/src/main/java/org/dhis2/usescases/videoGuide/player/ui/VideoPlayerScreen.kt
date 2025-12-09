@@ -63,12 +63,24 @@ fun VideoPlayerScreen(
 
     // ダウンロード済みかどうかを確認して再生
     var isDownloaded by remember { mutableStateOf(false) }
+    var playbackError by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(videoItem?.id, downloadState) {
         videoItem?.let { video ->
             isDownloaded = viewModel.isVideoDownloaded()
             if (isDownloaded) {
-                exoPlayerManager.prepareMediaItem(video.videoUrl)
-                exoPlayerManager.getPlayer()?.playWhenReady = true
+                try {
+                    // videoIdを渡して、内部ストレージから確実に読み込む
+                    exoPlayerManager.prepareMediaItem(video.id)
+                    exoPlayerManager.getPlayer()?.playWhenReady = true
+                    playbackError = null
+                } catch (e: IllegalStateException) {
+                    // ダウンロード済みでない場合はエラー
+                    playbackError = "Video is not downloaded"
+                } catch (e: Exception) {
+                    playbackError = "Failed to play video: ${e.message}"
+                }
+            } else {
+                playbackError = null
             }
         }
     }
@@ -130,6 +142,17 @@ fun VideoPlayerScreen(
 
         // エラーメッセージ
         errorMessage?.let { error ->
+            Text(
+                text = error,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp)
+            )
+        }
+
+        // 再生エラーメッセージ
+        playbackError?.let { error ->
             Text(
                 text = error,
                 color = Color.White,

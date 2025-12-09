@@ -116,6 +116,19 @@ class VideoDownloadManager(
     }
 
     /**
+     * 動画がダウンロード済みかどうかを確認
+     */
+    fun isVideoDownloaded(videoId: String): Boolean {
+        return try {
+            val download = downloadIndex.getDownload(videoId)
+            download != null && download.state == Download.STATE_COMPLETED
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to check if video is downloaded: $videoId")
+            false
+        }
+    }
+
+    /**
      * ダウンロード完了時にRoom DBに保存
      * VideoItemの完全な情報が必要なため、外部から呼び出される
      */

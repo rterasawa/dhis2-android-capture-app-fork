@@ -11,9 +11,9 @@ import kotlinx.coroutines.launch
 import org.dhis2.usescases.videoGuide.VideoGuideRepository
 import org.dhis2.usescases.videoGuide.domain.model.VideoItem
 import org.dhis2.usescases.videoGuide.download.VideoDownloadManager
+import org.dhis2.usescases.videoGuide.download.VideoCacheManager
 import androidx.media3.exoplayer.offline.Download
 import timber.log.Timber
-import java.io.File
 
 @UnstableApi
 class VideoGuideViewModel(
@@ -39,7 +39,7 @@ class VideoGuideViewModel(
                     val video = repository.getVideoById(download.request.id)
                     if (video != null) {
                         // Media3では、キャッシュディレクトリのパスを保存（実際のファイルパスは不要）
-                        val cachePath = File(context.cacheDir, "video_downloads").absolutePath
+                        val cachePath = VideoCacheManager.getVideoDownloadDirectoryPath(context)
                         repository.saveDownloadedVideo(video, cachePath)
                         Timber.d("Download completed and saved to database: ${video.id}")
                     }

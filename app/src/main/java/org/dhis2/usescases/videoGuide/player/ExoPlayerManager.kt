@@ -11,22 +11,26 @@ import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.offline.DownloadManager
+import androidx.media3.exoplayer.offline.Download
 import timber.log.Timber
 
 /**
- * ExoPlayerインスタンスの管理とMedia3統合によるオフライン再生を行うマネージャー
- * Media3では、SimpleCacheを使用してダウンロード済みファイルを自動的に読み込む
+ * ExoPlayerインスタンスの管理
+ * ダウンロード済みの動画は必ず内部ストレージから再生する
+ * オンラインURLからは再生しない
  */
 class ExoPlayerManager(
     private val context: Context,
     private val cache: SimpleCache,
+    private val downloadManager: DownloadManager,
 ) {
 
     private var exoPlayer: ExoPlayer? = null
     private val httpDataSourceFactory: HttpDataSource.Factory
 
     init {
-        // HTTPデータソースファクトリ
+        // HTTPデータソースファクトリ（ダウンロード済みでない場合のみ使用）
         httpDataSourceFactory = androidx.media3.datasource.DefaultHttpDataSource.Factory()
             .setUserAgent(Util.getUserAgent(context, "DHIS2-Android-Capture"))
             .setAllowCrossProtocolRedirects(true)
@@ -61,16 +65,34 @@ class ExoPlayerManager(
 
     /**
      * メディアアイテムを準備
-     * Media3では、常に元のURLを使用し、SimpleCacheが自動的にキャッシュから読み込む
-     * @param videoUrl 動画のURL（常に元のURLを使用）
+     * ダウンロード済みの動画は必ず内部ストレージから再生する
+     * ダウンロード済みでない場合は再生しない
+     * 
+     * @param videoId 動画のID（ダウンロード済みかどうかを確認するため）
+     * @throws IllegalStateException ダウンロード済みでない場合
      */
-    fun prepareMediaItem(videoUrl: String) {
+    fun prepareMediaItem(videoId: String) {
         val player = exoPlayer ?: initializePlayer()
 
-        // Media3では、常に元のURLを使用
-        // SimpleCacheが自動的にキャッシュから読み込む
-        Timber.d("Preparing media item from URL: $videoUrl (Media3 will automatically use cache if available)")
-        val mediaItem = MediaItem.fromUri(videoUrl)
+        // ダウンロード状態を確認
+        val download = try {
+            downloadManager.downloadIndex.getDownload(videoId)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to get download state for video: $videoId")
+            null
+        }
+
+        if (download == null || download.state != Download.STATE_COMPLETED) {
+            throw IllegalStateException("Video is not downloaded: $videoId")
+        }
+
+        // ダウンロード済みの場合は、DownloadRequestからMediaItemを作成
+        // これにより、確実に内部ストレージ（キャッシュ）から読み込まれる
+        Timber.d("Preparing downloaded video from internal storage: $videoId")
+        
+        // DownloadRequestのURIを使用（内部ストレージから確実に読み込まれる）
+        val mediaItem = MediaItem.fromUri(download.request.uri)
+        
         player.setMediaItem(mediaItem)
         player.prepare()
     }
