@@ -1015,4 +1015,8 @@
     <string name="video_download_confirmation_message">Do you want to download this video before playing?</string>
     <string name="video_offline_available">Available offline</string>
     <string name="video_download_failed_retry">Download failed. Please try again.</string>
+    <!-- Video thumbnail strings -->
+    <string name="video_thumbnail">動画のサムネイル</string>
+    <string name="video_loading">動画を読み込んでいます...</string>
+    <string name="video_error">動画の読み込みに失敗しました</string>
 </resources>

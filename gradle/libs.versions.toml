@@ -6,6 +6,7 @@ vCode = "147"
 vName = "3.2.1.2"
 gradle = "8.8.0"
 kotlin = '2.0.21'
+ksp = '2.0.21-1.0.27'
 hilt = '2.47'
 jacoco = '0.8.10'
 designSystem = "0.5.1"
