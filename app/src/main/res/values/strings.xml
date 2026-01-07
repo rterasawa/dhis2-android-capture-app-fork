@@ -399,6 +399,7 @@
     <string name="check_event">Check</string>
 
     <string name="menu_home">Home</string>
+    <string name="menu_video_guide">Video Guide</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="showHelp">Show help</string>
@@ -995,4 +996,27 @@
     <string name="complete_enrollment_label">Complete %s</string>
     <string name="deactivate_enrollment_label">Deactivate %s</string>
     <string name="reopen_enrollment_label">Re-open %s</string>
+    
+    <!-- Video Download Service strings -->
+    <string name="download_notification_channel_name">Video Downloads</string>
+    <string name="download_notification_channel_description">Notifications for video downloads</string>
+    <string name="downloading_videos">Downloading %d video(s)</string>
+    <string name="download_service_running">Download service running</string>
+    <string name="download_progress">%d%% complete</string>
+    <string name="download_in_progress">Download in progress</string>
+    <string name="download_queued">Download queued</string>
+    <!-- Video Download UI strings -->
+    <string name="video_download">Download</string>
+    <string name="video_downloading">Downloading…</string>
+    <string name="video_downloaded">Downloaded</string>
+    <string name="video_cancel_download">Cancel</string>
+    <string name="video_download_required">This video is not downloaded</string>
+    <string name="video_download_confirmation_title">Download Video</string>
+    <string name="video_download_confirmation_message">Do you want to download this video before playing?</string>
+    <string name="video_offline_available">Available offline</string>
+    <string name="video_download_failed_retry">Download failed. Please try again.</string>
+    <!-- Video thumbnail strings -->
+    <string name="video_thumbnail">動画のサムネイル</string>
+    <string name="video_loading">動画を読み込んでいます...</string>
+    <string name="video_error">動画の読み込みに失敗しました</string>
 </resources>
