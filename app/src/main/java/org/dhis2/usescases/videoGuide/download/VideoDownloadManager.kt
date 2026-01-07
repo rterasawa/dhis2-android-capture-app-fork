@@ -1,6 +1,6 @@
 @file:OptIn(androidx.media3.common.util.UnstableApi::class)
 
-package org.dhis2.usescases.videoGuide.video
+package org.dhis2.usescases.videoGuide.download
 
 import android.content.Context
 import android.net.Uri
@@ -113,6 +113,19 @@ class VideoDownloadManager(
      */
     fun getDownloadProgress(videoId: String): Int {
         return downloadTracker.getDownloadProgress(videoId)
+    }
+
+    /**
+     * 動画がダウンロード済みかどうかを確認
+     */
+    fun isVideoDownloaded(videoId: String): Boolean {
+        return try {
+            val download = downloadIndex.getDownload(videoId)
+            download != null && download.state == Download.STATE_COMPLETED
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to check if video is downloaded: $videoId")
+            false
+        }
     }
 
     /**

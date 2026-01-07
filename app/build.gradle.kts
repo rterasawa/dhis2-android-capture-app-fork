@@ -10,6 +10,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("kapt")
+    id("com.google.devtools.ksp")
     id("kotlin-parcelize")
     alias(libs.plugins.kotlin.serialization)
     id("dagger.hilt.android.plugin")
@@ -150,7 +151,7 @@ android {
             buildConfigField("String", "GIT_SHA", "\"" + getCommitHash() + "\"")
             // エミュレーター用: ddevのポートマッピングに合わせる
             // 注意: ポート番号はddev再起動時に変わる可能性があるため、変更時は ddev describe で確認してください
-            buildConfigField("String", "DRUPAL_BASE_URL", "\"http://10.0.2.2:32768/\"")
+            buildConfigField("String", "DRUPAL_BASE_URL", "\"http://10.0.2.2:32772/\"")
         }
         getByName("release") {
             isMinifyEnabled = false
@@ -246,6 +247,14 @@ kotlin {
     }
 }
 
+android.applicationVariants.all {
+    kotlin.sourceSets {
+        getByName(name) {
+            kotlin.srcDir("build/generated/ksp/$name/kotlin")
+        }
+    }
+}
+
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(project(":dhis_android_analytics"))
@@ -316,7 +325,10 @@ dependencies {
     // Room Database for VideoGuide offline storage (Phase 2)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    kapt(libs.room.compiler)
+    ksp(libs.room.compiler)
+    
+    // Coil for Compose (画像読み込みライブラリ)
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     testImplementation(libs.test.archCoreTesting)
     testImplementation(libs.test.testCore)

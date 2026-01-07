@@ -1,6 +1,6 @@
 @file:OptIn(androidx.media3.common.util.UnstableApi::class)
 
-package org.dhis2.usescases.videoGuide.video
+package org.dhis2.usescases.videoGuide.download
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

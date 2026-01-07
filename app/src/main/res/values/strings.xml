@@ -1005,4 +1005,18 @@
     <string name="download_progress">%d%% complete</string>
     <string name="download_in_progress">Download in progress</string>
     <string name="download_queued">Download queued</string>
+    <!-- Video Download UI strings -->
+    <string name="video_download">Download</string>
+    <string name="video_downloading">Downloading…</string>
+    <string name="video_downloaded">Downloaded</string>
+    <string name="video_cancel_download">Cancel</string>
+    <string name="video_download_required">This video is not downloaded</string>
+    <string name="video_download_confirmation_title">Download Video</string>
+    <string name="video_download_confirmation_message">Do you want to download this video before playing?</string>
+    <string name="video_offline_available">Available offline</string>
+    <string name="video_download_failed_retry">Download failed. Please try again.</string>
+    <!-- Video thumbnail strings -->
+    <string name="video_thumbnail">動画のサムネイル</string>
+    <string name="video_loading">動画を読み込んでいます...</string>
+    <string name="video_error">動画の読み込みに失敗しました</string>
 </resources>

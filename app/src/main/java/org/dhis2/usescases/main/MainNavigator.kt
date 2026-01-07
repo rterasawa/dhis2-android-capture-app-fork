@@ -19,7 +19,7 @@ import org.dhis2.usescases.main.program.ProgramFragment
 import org.dhis2.usescases.qrReader.QrReaderFragment
 import org.dhis2.usescases.settings.SyncManagerFragment
 import org.dhis2.usescases.troubleshooting.TroubleshootingFragment
-import org.dhis2.usescases.videoGuide.VideoGuideFragment
+import org.dhis2.usescases.videoGuide.list.VideoGuideFragment
 
 class MainNavigator(
     private val dispatcherProvider: dispatch.core.DispatcherProvider,
